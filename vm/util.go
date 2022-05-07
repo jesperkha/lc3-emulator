@@ -7,22 +7,26 @@ func zeroExtend(n uint16, p int) uint16 {
 	return n & x
 }
 
-// Returns the zero-extended value but keeps the sign bit.
-// Example: 1 0011 -> 1000 0000 0000 0011
-func SignExtend(n uint16, length int) int16 {
-	signed := 0x0001 & (n >> uint16(length-1)) // get the signed bit
-	extended := zeroExtend(n, length-1)        // exclude signed bit
-	if signed == 1 {
-		return int16(extended) * -1
+// Replicates the most significant bit until 16 bits long.
+// Example: (0x00F0, 8) -> 0xFFF0
+func signExtend(n uint16, length int) uint16 {
+	sign := bitAt(n, length-1)
+	if sign == 0 {
+		return zeroExtend(n, length)
 	}
 
-	return int16(extended)
+	return (0xFFFF << (length - 1)) | n
 }
 
 // Returns the number in the given bit range starting from the right.
-// Example: (0xABCD, 4, 8) -> 0x00C0
-func bitSequence(n uint16, start int, end int) uint16 {
-	a := uint16(0xFFFF << start)
-	b := uint16(0xFFFF >> end)
-	return (a & b) & n
+// Example: (0xABCD, 4, 8) -> 0x000C
+func bitSequence(n uint16, start int, length int) uint16 {
+	a := ^uint16(0xFFFF << length)
+	b := n >> (start)
+	return a & b
+}
+
+// Returns the bit at the given pos (15 <- 0)
+func bitAt(n uint16, pos int) uint16 {
+	return 0x0001 & (n >> pos)
 }
