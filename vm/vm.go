@@ -2,7 +2,6 @@ package vm
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
@@ -56,15 +55,12 @@ func (m *machine) executeInstruction() error {
 	opcode := bitSequence(ins, 12, 4)
 	regA := bitSequence(ins, 9, 3) // destination register (mostly)
 	regB := bitSequence(ins, 6, 3) // source/base register (mostly)
-	pcOffset := signExtend(bitSequence(ins, 0, 9), 9)
-
-	fmt.Println(regA, regB, pcOffset)
+	// pcOffset := signExtend(bitSequence(ins, 0, 9), 9)
 
 	switch opcode {
 	case op_ADD:
-		// Bit [5] is 0 for register addition, 1 for immediate value
-		addType := bitAt(ins, 5)
-		result := uint16(0) // keep result for flag check after
+		addType := bitAt(ins, 6) // bit 6 is 0 for register addition, 1 for immediate value
+		result := uint16(0)      // keep result for flag check after
 		if addType == 0 {
 			regC := bitSequence(ins, 0, 3) // second source register
 			result = m.registers[regB] + m.registers[regC]

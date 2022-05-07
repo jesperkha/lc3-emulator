@@ -34,7 +34,7 @@ func TestBitSequence(t *testing.T) {
 func TestBitAt(t *testing.T) {
 	n := uint16(0x0010)
 	expect := 1
-	at := bitAt(n, 4)
+	at := bitAt(n, 5)
 	if at != uint16(expect) {
 		t.Errorf("expected %d, got %d", expect, at)
 	}
