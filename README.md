@@ -1,11 +1,11 @@
 <br />
 <div align="center">
-  <img src=".github/icon.png" alt="Logo" width="120">
+  <img src=".github/icon.png" alt="Logo" width="140">
 
   <h3 align="center">smore</h3>
 
   <p align="center">
-    Simple VM written in Go based on the LC-3 architecture.
+    A simple VM based on the LC-3 architecture.
   </p>
 </div>
 
