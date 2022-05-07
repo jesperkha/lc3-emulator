@@ -18,10 +18,11 @@ type machine struct {
 // Fetches the next instruction from memory and executes it
 func (m *machine) executeInstruction() error {
 	// Fetch instruction and increment pc
-	ins := m.memory[m.registers[reg_PC]]
+	// ins := m.memory[m.registers[reg_PC]]
 	m.registers[reg_PC]++
 
 	// Parse instruction
+	// regA := bitSequence()
 
 	return nil
 }
