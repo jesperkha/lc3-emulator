@@ -18,3 +18,11 @@ func SignExtend(n uint16, length int) int16 {
 
 	return int16(extended)
 }
+
+// Returns the number in the given bit range starting from the right.
+// Example: (0xABCD, 4, 8) -> 0x00C0
+func BitSequence(n uint16, start int, end int) uint16 {
+	a := uint16(0xFFFF << start)
+	b := uint16(0xFFFF >> end)
+	return (a & b) & n
+}

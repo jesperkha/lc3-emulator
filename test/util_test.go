@@ -23,3 +23,12 @@ func TestSignExtend(t *testing.T) {
 		t.Errorf("expected %d, got %d", expect, signed)
 	}
 }
+
+func TestBitSequence(t *testing.T) {
+	n := uint16(0xABCD)
+	seq := vm.BitSequence(n, 4, 8)
+	expect := 0x00C0
+	if seq != uint16(expect) {
+		t.Errorf("expected %d, got %d", expect, seq)
+	}
+}

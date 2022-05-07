@@ -14,3 +14,14 @@ type machine struct {
 	memory    [MEMORY_SIZE]uint16
 	registers [16]uint16
 }
+
+// Fetches the next instruction from memory and executes it
+func (m *machine) executeInstruction() error {
+	// Fetch instruction and increment pc
+	ins := m.memory[m.registers[reg_PC]]
+	m.registers[reg_PC]++
+
+	// Parse instruction
+
+	return nil
+}

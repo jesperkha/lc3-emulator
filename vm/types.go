@@ -11,14 +11,15 @@ const (
 	reg_R7
 	reg_PC
 	reg_FLAG
+)
 
+const (
 	op_BR = iota // Branch
 	op_ADD
 	op_LD
 	op_ST
 	op_JSR
 	op_AND
-	op_OR
 	op_LDR
 	op_STR
 	op_RTI
@@ -26,10 +27,12 @@ const (
 	op_LDI
 	op_STI
 	op_JMP
-	op_RES
+	_ // reserved
 	op_LEA
 	op_TRAP
+)
 
+const (
 	fl_POS = 1 << iota
 	fl_ZRO
 	fl_NEG
