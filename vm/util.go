@@ -1,5 +1,12 @@
 package vm
 
+import "fmt"
+
+// Shorthand for fmt.Errorf() to not have 10 mile long lines
+func errorf(err error, a ...any) error {
+	return fmt.Errorf(err.Error(), a...)
+}
+
 // Returns a 16 bit number from the right most bits of length p.
 // Example: (0xFFFF, 4) -> 0x000F
 func zeroExtend(n uint16, p int) uint16 {

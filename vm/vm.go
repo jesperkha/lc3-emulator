@@ -1,11 +1,16 @@
 package vm
 
 import (
+	"errors"
 	"fmt"
 )
 
+var (
+	errUnknownOpcode = errors.New("unknown opcode: %d")
+)
+
 const (
-	MEMORY_SIZE = 0xFF
+	MEMORY_SIZE = 0xF // Debug
 
 	trapVecPtr    = 0x0000 // trap vector table
 	intVecTable   = 0x0100 // interupt vector table
@@ -15,24 +20,34 @@ const (
 )
 
 type VirtualMachine interface {
-	ExecuteInstruction() error
 }
 
 type machine struct {
-	memory    [MEMORY_SIZE]uint16
+	memory    []uint16
 	registers [16]uint16
 }
 
 func NewMachine() VirtualMachine {
-	m := &machine{}
-	// 1 5 -1
-	// 0001 101 100000001
-	m.memory[0] = 0b0001101100000001
-	return m
+	return &machine{
+		memory: make([]uint16, MEMORY_SIZE),
+	}
+}
+
+// Sets the appropriate flags based on the result value v
+func (m *machine) setFlags(v uint16) {
+	if (v & 0x0001) == 0 {
+		m.registers[reg_FLAG] |= fl_PTY
+	}
+	if v == 0 {
+		m.registers[reg_FLAG] |= fl_ZRO
+	}
+	if (v & 0x8000) == 1 {
+		m.registers[reg_FLAG] |= fl_NEG
+	}
 }
 
 // Fetches the next instruction from memory and executes it
-func (m *machine) ExecuteInstruction() error {
+func (m *machine) executeInstruction() error {
 	// Fetch instruction and increment pc
 	ins := m.memory[m.registers[reg_PC]]
 	m.registers[reg_PC]++
@@ -51,13 +66,17 @@ func (m *machine) ExecuteInstruction() error {
 		addType := bitAt(ins, 5)
 		result := uint16(0) // keep result for flag check after
 		if addType == 0 {
-			regC := bitSequence(ins, 0, 3) // second source reg
+			regC := bitSequence(ins, 0, 3) // second source register
 			result = m.registers[regB] + m.registers[regC]
-			m.registers[regA] = result
 		} else {
-			// immediate := signExtend(bitSequence(ins, 0, 5), 5)
-			// result := m.registers[regB] + immediate
+			immediate := signExtend(bitSequence(ins, 0, 5), 5)
+			result = m.registers[regB] + immediate
 		}
+		m.registers[regA] = result
+		m.setFlags(result)
+
+	default:
+		return errorf(errUnknownOpcode, opcode)
 	}
 
 	return nil
