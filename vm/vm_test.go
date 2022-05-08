@@ -53,6 +53,14 @@ func TestOperations(t *testing.T) {
 			reg_PC,
 			8,
 		},
+		{
+			"JSR",
+			[]uint16{
+				0b0100100000000011, // JSR 3
+			},
+			reg_PC,
+			4,
+		},
 	}
 
 	for _, c := range testCases {

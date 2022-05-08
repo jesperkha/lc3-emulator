@@ -33,6 +33,11 @@ func bitSequence(n uint16, start int, length int) uint16 {
 	return a & b
 }
 
+// Shorthand for sign-extended bit sequence
+func signedSequence(n uint16, start int, length int) uint16 {
+	return signExtend(bitSequence(n, start, length), length)
+}
+
 // Returns the bit at the given pos, starting at 1 from the right
 func bitAt(n uint16, pos int) uint16 {
 	return 0x0001 & (n >> (pos - 1))

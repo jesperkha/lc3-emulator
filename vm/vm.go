@@ -61,7 +61,7 @@ func (m *machine) executeInstruction() error {
 	opcode := bitSequence(ins, 12, 4)
 	regA := bitSequence(ins, 9, 3) // destination register (mostly)
 	regB := bitSequence(ins, 6, 3) // source/base register (mostly)
-	pcOffset := signExtend(bitSequence(ins, 0, 9), 9)
+	pcOffset := signedSequence(ins, 0, 9)
 
 	switch opcode {
 	case op_ADD: // ADD <dest>, <source1> <source2|immediate>
@@ -71,7 +71,7 @@ func (m *machine) executeInstruction() error {
 			regC := bitSequence(ins, 0, 3) // second source register
 			result = m.registers[regB] + m.registers[regC]
 		} else {
-			immediate := signExtend(bitSequence(ins, 0, 5), 5)
+			immediate := signedSequence(ins, 0, 5)
 			result = m.registers[regB] + immediate
 		}
 		m.registers[regA] = result
@@ -84,7 +84,7 @@ func (m *machine) executeInstruction() error {
 			regC := bitSequence(ins, 0, 3) // second source register
 			result = m.registers[regB] & m.registers[regC]
 		} else {
-			immediate := signExtend(bitSequence(ins, 0, 5), 5)
+			immediate := signedSequence(ins, 0, 5)
 			result = m.registers[regB] & immediate
 		}
 		m.registers[regA] = result
@@ -102,6 +102,14 @@ func (m *machine) executeInstruction() error {
 			offsetReg = reg_R7 // R7 holds return instruction after subroutine call
 		}
 		m.registers[reg_PC] = m.registers[offsetReg]
+
+	case op_JSR: // JSR <label> or JSRR <source>
+		if bitAt(ins, 12) == 1 { // add offset to pc
+			offset := signedSequence(ins, 0, 11)
+			m.registers[reg_PC] += offset
+		} else {
+			m.registers[reg_PC] = m.registers[regB]
+		}
 
 	default:
 		return errorf(errUnknownOpcode, opcode)
