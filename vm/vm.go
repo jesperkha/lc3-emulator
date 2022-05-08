@@ -104,7 +104,8 @@ func (m *machine) executeInstruction() error {
 		m.registers[reg_PC] = m.registers[offsetReg]
 
 	case op_JSR: // JSR <label> or JSRR <source>
-		if bitAt(ins, 12) == 1 { // add offset to pc
+		m.registers[reg_R7] = m.registers[reg_PC] // set return point to current pc at R7
+		if bitAt(ins, 12) == 1 {                  // add offset to pc
 			offset := signedSequence(ins, 0, 11)
 			m.registers[reg_PC] += offset
 		} else {
