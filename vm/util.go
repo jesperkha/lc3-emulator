@@ -4,7 +4,12 @@ import "fmt"
 
 // Shorthand for fmt.Errorf() to not have 10 mile long lines
 func errorf(err error, a ...any) error {
-	return fmt.Errorf(err.Error(), a...)
+	return fmt.Errorf("[ ERROR ]"+err.Error(), a...)
+}
+
+// Logs formatted message
+func logf(msg string, a ...any) {
+	fmt.Printf("[ LOG ] %s\n", fmt.Sprintf(msg, a...))
 }
 
 // Returns a 16 bit number from the right most bits of length p.

@@ -61,6 +61,35 @@ func TestOperations(t *testing.T) {
 			reg_PC,
 			4,
 		},
+		{
+			"LD",
+			[]uint16{
+				0b0001000000100101, // Dummy instruction
+				0b0010001111111110, // LD R1, -2
+			},
+			reg_R1,
+			0b0001000000100101,
+		},
+		{
+			"LDI",
+			[]uint16{
+				0b1010000000000000, // LDI R0, 0
+				0b0000000000000010, // 2 (address of next)
+				0b0000000001000101, // 69
+			},
+			reg_R0,
+			69,
+		},
+		{
+			"LDR",
+			[]uint16{
+				0b0001000000100010, // ADD R0, 2
+				0b0110001000000000, // LDR R1, R0 0
+				0b0000000000000011, // 3
+			},
+			reg_R1,
+			3,
+		},
 	}
 
 	for _, c := range testCases {

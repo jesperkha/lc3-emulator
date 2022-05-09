@@ -32,9 +32,10 @@ func NewMachine() VirtualMachine {
 	}
 }
 
-// Sets the appropriate flags based on the result value v
+// Sets the appropriate flags based on the result value in register r
 // Todo: unset flags
-func (m *machine) setFlags(v uint16) {
+func (m *machine) setFlags(r uint16) {
+	v := m.registers[r]
 	if (v & 0x0001) == 0 {
 		m.registers[reg_FLAG] |= fl_PTY
 	}
@@ -64,46 +65,47 @@ func (m *machine) executeInstruction() error {
 	pcOffset := signedSequence(ins, 0, 9)
 
 	switch opcode {
-	case op_ADD: // ADD <dest>, <source1> <source2|immediate>
+	case op_ADD:
+		// ADD <dest>, <source1> <source2|immediate>
 		addType := bitAt(ins, 6) // 0 for register addition, 1 for immediate value
-		result := uint16(0)
 		if addType == 0 {
 			regC := bitSequence(ins, 0, 3) // second source register
-			result = m.registers[regB] + m.registers[regC]
+			m.registers[regA] = m.registers[regB] + m.registers[regC]
 		} else {
 			immediate := signedSequence(ins, 0, 5)
-			result = m.registers[regB] + immediate
+			m.registers[regA] = m.registers[regB] + immediate
 		}
-		m.registers[regA] = result
-		m.setFlags(result)
+		m.setFlags(regA)
 
-	case op_AND: // AND <dest>, <source1> <source2|immediate>
+	case op_AND:
+		// AND <dest>, <source1> <source2|immediate>
 		andType := bitAt(ins, 6) // 0 for register AND, 1 for immediate value
-		result := uint16(0)
 		if andType == 0 {
 			regC := bitSequence(ins, 0, 3) // second source register
-			result = m.registers[regB] & m.registers[regC]
+			m.registers[regA] = m.registers[regB] & m.registers[regC]
 		} else {
 			immediate := signedSequence(ins, 0, 5)
-			result = m.registers[regB] & immediate
+			m.registers[regA] = m.registers[regB] & immediate
 		}
-		m.registers[regA] = result
-		m.setFlags(result)
+		m.setFlags(regA)
 
-	case op_BR: // BR[flags] <label>
+	case op_BR:
+		// BR[flags] <label>
 		p, z, n := bitAt(ins, 10) > 0, bitAt(ins, 11) > 0, bitAt(ins, 12) > 0 // flags
 		if m.hasFlag(fl_POS) && p || m.hasFlag(fl_ZRO) && z || m.hasFlag(fl_NEG) && n {
 			m.registers[reg_PC] += pcOffset
 		}
 
-	case op_JMP: // JMP <source> or RET
+	case op_JMP:
+		// JMP <source> | RET
 		offsetReg := regB
 		if regB == 7 { // source2 is 111 for return
 			offsetReg = reg_R7 // R7 holds return instruction after subroutine call
 		}
 		m.registers[reg_PC] = m.registers[offsetReg]
 
-	case op_JSR: // JSR <label> or JSRR <source>
+	case op_JSR:
+		// JSR  <label> | JSRR <source>
 		m.registers[reg_R7] = m.registers[reg_PC] // set return point to current pc at R7
 		if bitAt(ins, 12) == 1 {                  // add offset to pc
 			offset := signedSequence(ins, 0, 11)
@@ -112,10 +114,23 @@ func (m *machine) executeInstruction() error {
 			m.registers[reg_PC] = m.registers[regB]
 		}
 
-	case op_LD: // LD <dest>, <address>
-		value := m.memory[m.registers[reg_PC]+pcOffset]
-		m.registers[regA] = value
-		m.setFlags(value)
+	case op_LD:
+		// LD <dest>, <label>
+		m.registers[regA] = m.memory[m.registers[reg_PC]+pcOffset]
+		m.setFlags(regA)
+
+	case op_LDI:
+		// LDI <dest>, <label>
+		memPtr := m.memory[m.registers[reg_PC]+pcOffset] // load loc is at mem[pc+offset]
+		m.registers[regA] = m.memory[memPtr]             // load value
+		m.setFlags(regA)
+
+	case op_LDR:
+		// LDR <dest>, <base>, <offset>
+		offset := signedSequence(ins, 0, 6)  // get offset
+		memPtr := m.registers[regB] + offset // memptr is value of baseR + offset
+		m.registers[regA] = m.memory[memPtr]
+		m.setFlags(regA)
 
 	default:
 		return errorf(errUnknownOpcode, opcode)
