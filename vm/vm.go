@@ -112,6 +112,11 @@ func (m *machine) executeInstruction() error {
 			m.registers[reg_PC] = m.registers[regB]
 		}
 
+	case op_LD: // LD <dest>, <address>
+		value := m.memory[m.registers[reg_PC]+pcOffset]
+		m.registers[regA] = value
+		m.setFlags(value)
+
 	default:
 		return errorf(errUnknownOpcode, opcode)
 	}
