@@ -132,6 +132,16 @@ func (m *machine) executeInstruction() error {
 		m.registers[regA] = m.memory[memPtr]
 		m.setFlags(regA)
 
+	case op_LEA:
+		// LEA <dest>, <label>
+		m.registers[regA] = m.registers[reg_PC] + pcOffset // store target mem address
+		m.setFlags(regA)
+
+	case op_NOT:
+		// NOT <dest>, <source>
+		m.registers[regA] = ^m.registers[regB]
+		m.setFlags(regA)
+
 	default:
 		return errorf(errUnknownOpcode, opcode)
 	}

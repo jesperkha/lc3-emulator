@@ -90,6 +90,23 @@ func TestOperations(t *testing.T) {
 			reg_R1,
 			3,
 		},
+		{
+			"LEA",
+			[]uint16{
+				0b1110000000000001, // LEA R0, 1
+			},
+			reg_R0,
+			2,
+		},
+		{
+			"NOT",
+			[]uint16{
+				0b0001000000101111, // ADD R0, R0 1111
+				0b1001001000000000, // NOT R1, R0
+			},
+			reg_R1,
+			0b1111111111110000,
+		},
 	}
 
 	for _, c := range testCases {
