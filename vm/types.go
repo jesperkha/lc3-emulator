@@ -11,6 +11,7 @@ const (
 	reg_R7
 	reg_PC
 	reg_FLAG
+	reg_PSR
 )
 
 const (
@@ -36,5 +37,4 @@ const (
 	fl_POS = 1 << iota
 	fl_ZRO
 	fl_NEG
-	fl_PTY
 )

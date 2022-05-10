@@ -4,7 +4,7 @@ import "fmt"
 
 // Shorthand for fmt.Errorf() to not have 10 mile long lines
 func errorf(err error, a ...any) error {
-	return fmt.Errorf("[ ERROR ]"+err.Error(), a...)
+	return fmt.Errorf("[ ERROR ] "+err.Error(), a...)
 }
 
 // Logs formatted message

@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	errUnknownOpcode = errors.New("unknown opcode: %d")
+	errUnknownOpcode          = errors.New("unknown opcode: %d")
+	errPrivilegeModeViolation = errors.New("privilege mode violation")
 )
 
 const (
@@ -37,7 +38,7 @@ func NewMachine() VirtualMachine {
 func (m *machine) setFlags(r uint16) {
 	v := m.registers[r]
 	if (v & 0x0001) == 0 {
-		m.registers[reg_FLAG] |= fl_PTY
+		m.registers[reg_FLAG] |= fl_POS
 	}
 	if v == 0 {
 		m.registers[reg_FLAG] |= fl_ZRO
@@ -141,6 +142,32 @@ func (m *machine) executeInstruction() error {
 		// NOT <dest>, <source>
 		m.registers[regA] = ^m.registers[regB]
 		m.setFlags(regA)
+
+	case op_RTI:
+		// RTI
+		if m.registers[reg_PSR]&0x8000 == 1 {
+			return errorf(errPrivilegeModeViolation)
+		}
+		// else privilege mode and condition restored after interrupt
+		m.registers[reg_PC] = m.memory[m.registers[reg_R6]] // R6 is the SSP
+		temp := m.memory[m.registers[reg_R6]+1]
+		m.registers[reg_R6] += 2
+		m.registers[reg_PSR] = temp
+
+	case op_ST:
+		// ST <source>, <label>
+		memPtr := m.registers[reg_PC] + pcOffset
+		m.memory[memPtr] = m.registers[regA]
+
+	case op_STI:
+		// STI <source>, <label>
+		memPtr := m.memory[m.registers[reg_PC]+pcOffset]
+		m.memory[memPtr] = m.registers[regA]
+
+	case op_STR:
+		// STR <source>, <base>, <offset>
+		memPtr := m.registers[regB] + signedSequence(ins, 0, 6)
+		m.memory[memPtr] = m.registers[regA]
 
 	default:
 		return errorf(errUnknownOpcode, opcode)
